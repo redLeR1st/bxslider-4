@@ -1,4 +1,7 @@
 /**
+ * GITHUB: https://github.com/redLeR1st/bxslider-4
+ * Fixing: gulp error ->
+ * -> ReferenceError: primordials is not defined: https://stackoverflow.com/questions/55921442/how-to-fix-referenceerror-primordials-is-not-defined-in-node-js
  * bxSlider v4.2.1d
  * Copyright 2013-2017 Steven Wanderski
  * Written while drinking Belgian ales and listening to jazz
@@ -81,6 +84,9 @@
     moveSlides: 0,
     slideWidth: 0,
     shrinkItems: false,
+
+    // LICQUID
+    isRuntime: true,
 
     // CALLBACKS
     onSliderLoad: function() { return true; },
@@ -256,13 +262,13 @@
       slider.active.last = slider.settings.startSlide === getPagerQty() - 1;
       // if video is true, set up the fitVids plugin
       if (slider.settings.video) { el.fitVids(); }
-	  //preloadImages
-	  if (slider.settings.preloadImages === 'none') { 
-		  preloadSelector = null; 
-	  }
-      else if (slider.settings.preloadImages === 'all' || slider.settings.ticker) { 
-		  preloadSelector = slider.children; 
-	  }
+      //preloadImages
+      if (slider.settings.preloadImages === 'none') {
+        preloadSelector = null;
+      }
+        else if (slider.settings.preloadImages === 'all' || slider.settings.ticker) {
+        preloadSelector = slider.children;
+      }
       // only check for control addition if not in "ticker" mode
       if (!slider.settings.ticker) {
         // if controls are requested, add them
@@ -1106,7 +1112,8 @@
       if (e.type !== 'touchstart' && e.button !== 0) {
         return;
       }
-      e.preventDefault();
+      if (slider.settings.isRuntime)
+        e.preventDefault();
       //disable slider controls while user is interacting with slides to avoid slider freeze that happens on touch devices when a slide swipe happens immediately after interacting with slider controls
       slider.controls.el.addClass('disabled');
 
@@ -1117,19 +1124,20 @@
         slider.touch.originalPos = el.position();
         var orig = e.originalEvent,
         touchPoints = (typeof orig.changedTouches !== 'undefined') ? orig.changedTouches : [orig];
-		var chromePointerEvents = typeof PointerEvent === 'function'; 
-		if (chromePointerEvents) { 
-			if (orig.pointerId === undefined) { 
-				return;
-			} 
-		}
+        var chromePointerEvents = typeof PointerEvent === 'function';
+        if (chromePointerEvents) {
+          if (orig.pointerId === undefined) {
+            return;
+          }
+        }
         // record the starting touch x, y coordinates
         slider.touch.start.x = touchPoints[0].pageX;
         slider.touch.start.y = touchPoints[0].pageY;
 
         if (slider.viewport.get(0).setPointerCapture) {
           slider.pointerId = orig.pointerId;
-          slider.viewport.get(0).setPointerCapture(slider.pointerId);
+          if (slider.settings.isRuntime)
+            slider.viewport.get(0).setPointerCapture(slider.pointerId);
         }
         // store original event data for click fixation
         slider.originalClickTarget = orig.originalTarget || orig.target;
